@@ -49,16 +49,41 @@ try {
   console.error("Firebase initialization error:", e);
 }
 
-// Function to save booking directly to Firestore
 export const saveBookingToFirestore = async (bookingData) => {
   if (!db) {
     console.warn("Firestore not initialized, saving to local cache.");
     return `LOCAL-${Date.now()}`;
   }
-  const docRef = await addDoc(collection(db, "bookings"), {
-    ...bookingData,
-    createdAt: serverTimestamp()
-  });
+  
+  // Format the payload to match the CRM's expected admissions schema
+  const admissionPayload = {
+    name: bookingData.name || "",
+    phone: bookingData.phone || "",
+    email: bookingData.email || "",
+    planName: bookingData.plan || "",
+    planId: "website-inquiry",
+    
+    // Required CRM fields with safe placeholders
+    dob: "1900-01-01", 
+    gender: "Not Specified",
+    paymentMethod: "Pay Later",
+    termsAccepted: true,
+    
+    // Status markers for CRM
+    status: "Pending",
+    approvalStatus: "Pending",
+    isStudentSubmission: true,
+    role: "Student",
+    source: "Website",
+    
+    // Pass user's message into remarks
+    remarks: bookingData.message || "",
+    
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  };
+
+  const docRef = await addDoc(collection(db, "admissions"), admissionPayload);
   return docRef.id;
 };
 

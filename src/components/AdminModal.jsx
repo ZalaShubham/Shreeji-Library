@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Lock, RefreshCw, CheckCircle, Clock, Search, Download, UserCheck, Plus, Trash2, Sparkles } from 'lucide-react';
+import { X, Lock, RefreshCw, CheckCircle, Clock, Plus, Trash2, Sparkles, UserCheck, Pencil, Save } from 'lucide-react';
 import { usePlans } from '../context/PlansContext';
 
 export default function AdminModal({ isOpen, onClose }) {
@@ -12,13 +12,41 @@ export default function AdminModal({ isOpen, onClose }) {
   const [loading, setLoading] = useState(false);
 
   // Dynamic Plans from context
-  const { plans, addBenefitPoint, removeBenefitPoint, updatePlan, resetToDefaultPlans } = usePlans();
+  const { plans, addBenefitPoint, removeBenefitPoint, editBenefitPoint, updatePlan, resetToDefaultPlans } = usePlans();
 
   // New point form state
   const [newPointPlanId, setNewPointPlanId] = useState('half-day');
   const [newPointEn, setNewPointEn] = useState('');
   const [newPointGu, setNewPointGu] = useState('');
   const [successNotice, setSuccessNotice] = useState('');
+
+  // Per-plan inline add form
+  const [inlineAdd, setInlineAdd] = useState({}); // { planId: { en: '', gu: '' } }
+  // Edit-in-place state: { planId_idx: { en, gu } }
+  const [editState, setEditState] = useState({});
+
+  const handleInlineAdd = (planId) => {
+    const val = inlineAdd[planId];
+    if (!val || !val.en.trim()) return;
+    addBenefitPoint(planId, val.en, val.gu || '');
+    setInlineAdd(prev => ({ ...prev, [planId]: { en: '', gu: '' } }));
+    setSuccessNotice('Benefit point added to plan!');
+    setTimeout(() => setSuccessNotice(''), 3000);
+  };
+
+  const startEdit = (planId, idx, en, gu) => {
+    setEditState(prev => ({ ...prev, [`${planId}_${idx}`]: { en, gu } }));
+  };
+
+  const saveEdit = (planId, idx) => {
+    const key = `${planId}_${idx}`;
+    const val = editState[key];
+    if (!val || !val.en.trim()) return;
+    editBenefitPoint(planId, idx, val.en, val.gu || '');
+    setEditState(prev => { const n = {...prev}; delete n[key]; return n; });
+    setSuccessNotice('Benefit point updated!');
+    setTimeout(() => setSuccessNotice(''), 3000);
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -268,52 +296,134 @@ export default function AdminModal({ isOpen, onClose }) {
                 {/* Plans List & Current Points */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {plans.map((plan) => (
-                    <div key={plan.id} className="bg-white p-5 rounded-2xl border border-[#F5E4E4] shadow-sm flex flex-col justify-between">
-                      <div>
-                        <div className="flex items-center justify-between pb-3 border-b border-[#F5E4E4]">
-                          <div>
-                            <h4 className="font-bold text-base text-[#201E1F]">{plan.nameEn} ({plan.nameGu})</h4>
-                            <p className="text-xs text-[#983132] font-semibold">{plan.taglineEn}</p>
-                          </div>
+                    <div key={plan.id} className={`bg-white p-5 rounded-2xl border-2 shadow-sm flex flex-col gap-4 ${
+                      plan.featured ? 'border-[#EB6A30]' : 'border-[#F5E4E4]'
+                    }`}>
 
-                          <div className="flex items-center gap-1">
-                            <span className="text-xs font-bold text-[#201E1F]">Price ₹</span>
-                            <input
-                              type="number"
-                              value={plan.price}
-                              onChange={(e) => updatePlan(plan.id, { price: e.target.value })}
-                              className="w-20 p-1.5 rounded-lg border border-[#F5E4E4] text-sm font-extrabold text-[#201E1F] text-center"
-                            />
+                      {/* Plan Header */}
+                      <div className="flex items-center justify-between pb-3 border-b border-[#F5E4E4]">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-bold text-base text-[#201E1F]">{plan.nameEn}</h4>
+                            {plan.featured && (
+                              <span className="text-[10px] bg-[#EB6A30] text-white px-2 py-0.5 rounded-full font-bold">⭐ Featured</span>
+                            )}
                           </div>
+                          <p className="text-xs text-[#983132] font-semibold">{plan.taglineEn}</p>
                         </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-bold text-[#201E1F]">₹</span>
+                          <input
+                            type="number"
+                            value={plan.price}
+                            onChange={(e) => updatePlan(plan.id, { price: e.target.value })}
+                            className="w-20 p-1.5 rounded-lg border border-[#F5E4E4] text-sm font-extrabold text-[#201E1F] text-center focus:outline-none focus:ring-2 focus:ring-[#EB6A30]"
+                          />
+                          <span className="text-[10px] text-[#201E1F]/50">/mo</span>
+                        </div>
+                      </div>
 
-                        {/* List of Benefits */}
-                        <div className="mt-4 space-y-2">
-                          <p className="text-[11px] font-bold text-[#201E1F]/60 uppercase tracking-wider">
-                            Active Benefit Points ({plan.benefitsEn.length}):
-                          </p>
+                      {/* Benefit Points List */}
+                      <div className="space-y-2">
+                        <p className="text-[11px] font-bold text-[#201E1F]/50 uppercase tracking-wider flex items-center gap-1.5">
+                          <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
+                          Benefits ({plan.benefitsEn.length} points)
+                        </p>
 
-                          {plan.benefitsEn.map((benefit, idx) => (
-                            <div
-                              key={idx}
-                              className="flex items-start justify-between gap-2 p-2.5 rounded-xl bg-[#FFF8F5] border border-[#F5E4E4] group"
-                            >
-                              <div className="flex-1 text-xs">
-                                <p className="font-semibold text-[#201E1F]">{benefit}</p>
-                                {plan.benefitsGu && plan.benefitsGu[idx] && (
-                                  <p className="text-[11px] text-[#201E1F]/60 mt-0.5">{plan.benefitsGu[idx]}</p>
-                                )}
-                              </div>
-
-                              <button
-                                onClick={() => removeBenefitPoint(plan.id, idx)}
-                                className="text-red-500 hover:text-red-700 p-1 rounded-md opacity-70 hover:opacity-100 transition-opacity"
-                                title="Remove benefit"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
+                        {plan.benefitsEn.map((benefit, idx) => {
+                          const editKey = `${plan.id}_${idx}`;
+                          const isEditing = !!editState[editKey];
+                          return (
+                            <div key={idx} className="rounded-xl bg-[#FFF8F5] border border-[#F5E4E4] group">
+                              {isEditing ? (
+                                /* Edit Mode */
+                                <div className="p-2.5 space-y-1.5">
+                                  <input
+                                    autoFocus
+                                    value={editState[editKey].en}
+                                    onChange={e => setEditState(prev => ({ ...prev, [editKey]: { ...prev[editKey], en: e.target.value } }))}
+                                    className="w-full px-2.5 py-1.5 rounded-lg border border-[#EB6A30] text-xs font-semibold text-[#201E1F] focus:outline-none"
+                                    placeholder="Benefit in English"
+                                  />
+                                  <input
+                                    value={editState[editKey].gu}
+                                    onChange={e => setEditState(prev => ({ ...prev, [editKey]: { ...prev[editKey], gu: e.target.value } }))}
+                                    className="w-full px-2.5 py-1.5 rounded-lg border border-[#F5E4E4] text-[11px] text-[#201E1F]/70 focus:outline-none"
+                                    placeholder="ગુજરાતીમાં (વૈકલ્પિક)"
+                                  />
+                                  <div className="flex gap-1.5 pt-0.5">
+                                    <button
+                                      onClick={() => saveEdit(plan.id, idx)}
+                                      className="flex items-center gap-1 bg-emerald-600 text-white text-[11px] font-bold px-3 py-1 rounded-full hover:bg-emerald-700"
+                                    >
+                                      <Save className="w-3 h-3" /> Save
+                                    </button>
+                                    <button
+                                      onClick={() => setEditState(prev => { const n={...prev}; delete n[editKey]; return n; })}
+                                      className="text-[11px] text-[#201E1F]/50 hover:text-[#201E1F] px-2 py-1 rounded-full"
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                /* View Mode */
+                                <div className="flex items-start justify-between gap-2 p-2.5">
+                                  <div className="flex-1 text-xs">
+                                    <p className="font-semibold text-[#201E1F] leading-snug">{benefit}</p>
+                                    {plan.benefitsGu?.[idx] && (
+                                      <p className="text-[11px] text-[#201E1F]/55 mt-0.5">{plan.benefitsGu[idx]}</p>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button
+                                      onClick={() => startEdit(plan.id, idx, benefit, plan.benefitsGu?.[idx] || '')}
+                                      className="text-[#EB6A30] hover:text-[#d5571e] p-1 rounded-md"
+                                      title="Edit benefit"
+                                    >
+                                      <Pencil className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                      onClick={() => removeBenefitPoint(plan.id, idx)}
+                                      className="text-red-500 hover:text-red-700 p-1 rounded-md"
+                                      title="Remove benefit"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
                             </div>
-                          ))}
+                          );
+                        })}
+
+                        {/* Inline Add Form per Plan */}
+                        <div className="mt-3 p-3 rounded-xl border border-dashed border-[#EB6A30]/40 bg-[#FFF0E8]/40 space-y-2">
+                          <p className="text-[11px] font-bold text-[#EB6A30] uppercase tracking-wide">+ Add New Benefit to This Plan</p>
+                          <input
+                            type="text"
+                            value={inlineAdd[plan.id]?.en || ''}
+                            onChange={e => setInlineAdd(prev => ({ ...prev, [plan.id]: { ...prev[plan.id], en: e.target.value } }))}
+                            onKeyDown={e => e.key === 'Enter' && handleInlineAdd(plan.id)}
+                            placeholder="e.g. Priority booking support"
+                            className="w-full px-3 py-2 rounded-lg border border-[#F5E4E4] bg-white text-xs text-[#201E1F] focus:outline-none focus:ring-2 focus:ring-[#EB6A30]"
+                          />
+                          <input
+                            type="text"
+                            value={inlineAdd[plan.id]?.gu || ''}
+                            onChange={e => setInlineAdd(prev => ({ ...prev, [plan.id]: { ...prev[plan.id], gu: e.target.value } }))}
+                            onKeyDown={e => e.key === 'Enter' && handleInlineAdd(plan.id)}
+                            placeholder="ગુજરાતીમાં ફાયદો (વૈકલ્પિક)"
+                            className="w-full px-3 py-2 rounded-lg border border-[#F5E4E4] bg-white text-[11px] text-[#201E1F]/70 focus:outline-none"
+                          />
+                          <button
+                            onClick={() => handleInlineAdd(plan.id)}
+                            disabled={!inlineAdd[plan.id]?.en?.trim()}
+                            className="w-full py-2 rounded-full bg-[#EB6A30] hover:bg-[#d5571e] disabled:opacity-40 text-white text-xs font-bold transition-colors flex items-center justify-center gap-1.5"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                            Add Benefit Point
+                          </button>
                         </div>
                       </div>
 

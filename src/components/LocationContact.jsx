@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Phone, Clock, MessageSquare, ExternalLink } from 'lucide-react';
+import { MapPin, Phone, Clock, ExternalLink, Mail } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function LocationContact() {
@@ -62,7 +62,7 @@ export default function LocationContact() {
                   </p>
                   <div className="mt-3">
                     <a
-                      href="https://share.google/zwLt5rXFGlvjRy8ke"
+                      href="https://www.google.com/search?sca_esv=ac3607b23cf7e9a0&sxsrf=APpeQntzE3Txa1taL8sOiVsADw9bZwDHIg:1788501095902&kgmid=/g/11p_706vtb&q=Shreeji+Reading+Library&shem=dlvs1,epsd1,ltae,rimspwouoe&shndl=30&source=sh/x/loc/uni/m1/1&kgs=5b7c2b0bc508eb50&utm_source=dlvs1,epsd1,ltae,rimspwouoe,sh/x/loc/uni/m1/1"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#983132] hover:text-[#EB6A30] transition-colors"
@@ -103,6 +103,34 @@ export default function LocationContact() {
                 </div>
               </motion.div>
 
+              {/* Email Card */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.25 }}
+                className="flex items-start gap-4 p-5 rounded-2xl bg-white border border-[#F5E4E4] shadow-sm"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-[#983132] text-white flex items-center justify-center shrink-0">
+                  <Mail className="w-6 h-6" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-bold text-[#201E1F] text-base">{t('contact.emailLabel')}</h4>
+                  <p className="text-sm font-semibold text-[#EB6A30] mt-0.5">
+                    {t('contact.emailVal')}
+                  </p>
+                  <div className="flex items-center gap-3 mt-3">
+                    <a
+                      href="mailto:parthbhai@shreejilibrary.com"
+                      className="inline-flex items-center gap-1.5 bg-[#FFF8F5] text-[#983132] border border-[#F5E4E4] text-xs font-semibold px-4 py-2 rounded-full hover:bg-[#F5E4E4] transition-colors"
+                    >
+                      <Mail className="w-3.5 h-3.5" />
+                      <span>{t('contact.emailNow')}</span>
+                    </a>
+                  </div>
+                </div>
+              </motion.div>
+
               {/* Timings Card */}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
@@ -136,7 +164,7 @@ export default function LocationContact() {
             <div className="rounded-3xl overflow-hidden shadow-2xl border border-[#F5E4E4] bg-white h-[450px] relative group">
               <iframe
                 title="ShreeJi Reading Library Location"
-                src="https://maps.google.com/maps?q=Shreeji+Reading+Library&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                src="https://maps.google.com/maps?q=Shreeji+Reading+Library+Bhavnagar&t=&z=15&ie=UTF8&iwloc=&output=embed"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
@@ -152,7 +180,7 @@ export default function LocationContact() {
                   <p className="text-[11px] text-[#201E1F]/60">Air Conditioned • 24/7 Open</p>
                 </div>
                 <a 
-                  href="https://share.google/zwLt5rXFGlvjRy8ke"
+                  href="https://www.google.com/search?sca_esv=ac3607b23cf7e9a0&sxsrf=APpeQntzE3Txa1taL8sOiVsADw9bZwDHIg:1788501095902&kgmid=/g/11p_706vtb&q=Shreeji+Reading+Library&shem=dlvs1,epsd1,ltae,rimspwouoe&shndl=30&source=sh/x/loc/uni/m1/1&kgs=5b7c2b0bc508eb50&utm_source=dlvs1,epsd1,ltae,rimspwouoe,sh/x/loc/uni/m1/1"
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="bg-[#983132] hover:bg-[#7f2728] text-white text-xs font-semibold px-4 py-2 rounded-full transition-colors flex items-center gap-1.5 shadow-sm"

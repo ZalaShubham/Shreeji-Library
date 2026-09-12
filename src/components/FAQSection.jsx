@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, HelpCircle } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function FAQSection() {
   const [openIndex, setOpenIndex] = useState(0);
-  const { language, t } = useLanguage();
-  const isGu = language === 'gu';
+  const { t } = useLanguage();
 
   const faqs = [
     {

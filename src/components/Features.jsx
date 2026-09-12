@@ -18,7 +18,6 @@ import {
   Heart, 
   Lock, 
   Car,
-  Maximize2,
   X,
   ExternalLink,
   Camera

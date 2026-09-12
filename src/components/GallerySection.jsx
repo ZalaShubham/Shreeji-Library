@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Maximize2, X, ChevronLeft, ChevronRight, Play, Pause, Grid, Sparkles, Image as ImageIcon } from 'lucide-react';
+import { Maximize2, X, ChevronLeft, ChevronRight, Play, Pause, Grid, Image as ImageIcon } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 export const allGalleryPhotos = [

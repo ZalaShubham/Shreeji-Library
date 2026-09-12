@@ -98,13 +98,16 @@ export default function BookingForm({ selectedPlan, onOpenStudentPortal }) {
 
     setLoading(false);
 
-    // 3. If already logged in -> directly open Confirmed Seat Pass!
-    //    If not logged in -> open Login / Sign Up modal!
-    if (onOpenStudentPortal) {
-      setTimeout(() => {
-        onOpenStudentPortal(submissionCopy);
-      }, 350);
-    }
+    // 3. Redirect user to the CRM's Student Registration page with data pre-filled
+    setTimeout(() => {
+      const queryParams = new URLSearchParams({
+        name: submissionCopy.name || "",
+        phone: submissionCopy.phone || "",
+        email: submissionCopy.email || "",
+        plan: submissionCopy.plan || ""
+      }).toString();
+      window.location.href = `http://127.0.0.1:8080/student-register.html?${queryParams}`;
+    }, 500);
   };
 
   return (

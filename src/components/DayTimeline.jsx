@@ -3,8 +3,7 @@ import { motion } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function DayTimeline() {
-  const { language, t } = useLanguage();
-  const isGu = language === 'gu';
+  const { t } = useLanguage();
 
   const steps = [
     {

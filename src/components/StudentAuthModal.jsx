@@ -10,17 +10,17 @@ import {
   Lock, 
   Phone, 
   User, 
-  BookOpen, 
   ShieldCheck, 
-  Clock, 
-  Wifi, 
-  LogIn,
   KeyRound,
   Mail,
   Loader2,
   AlertCircle,
+  LogOut,
+  LogIn,
+  Shield,
   Armchair,
-  LogOut
+  Clock,
+  Wifi
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
