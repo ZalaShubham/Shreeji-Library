@@ -104,9 +104,10 @@ export default function BookingForm({ selectedPlan, onOpenStudentPortal }) {
         name: submissionCopy.name || "",
         phone: submissionCopy.phone || "",
         email: submissionCopy.email || "",
-        plan: submissionCopy.plan || ""
+        plan: submissionCopy.plan || "",
+        message: submissionCopy.message || ""
       }).toString();
-      window.location.href = `http://127.0.0.1:8080/student-register.html?${queryParams}`;
+      window.location.href = `http://192.168.48.192:8080/student-register.html?${queryParams}`;
     }, 500);
   };
 
